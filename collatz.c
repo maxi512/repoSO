@@ -48,35 +48,40 @@ void collatz(int numero, int *size, int **parreglo)
 
 int main(int argc, char **args)
 {
-
-    //*Convierte un string a entero
-    int numero = atoi(*(args + 1));
-
-    //atoi devuelve 0 si no pudo realizar la conversion.
-    if (numero == 0 || numero < 0)
+    if (argc > 2)
     {
-        printf("Por favor ingrese como parametro un numero entero positivo.\n");
+        printf("Por favor ingresar solo un parametro");
     }
     else
     {
+        //*Convierte un string a entero
+        int numero = atoi(*(args + 1));
 
-        int size = 0;
-
-        //Maximo 500 enteros
-        int *arreglo = (int *)malloc(500 * sizeof(int));
-        collatz(numero, &size, &arreglo);
-
-        int i;
-        printf("EL SIZE ES: %d\n", size);
-        for (i = 0; i < size; i++)
+        //atoi devuelve 0 si no pudo realizar la conversion.
+        if (numero == 0 || numero < 0)
+        {
+            printf("Por favor ingrese como parametro un numero entero positivo.\n");
+        }
+        else
         {
 
-            printf("%d ", arreglo[i]);
+            int size = 0;
+
+            //Maximo 500 enteros
+            int *arreglo = (int *)malloc(500 * sizeof(int));
+            collatz(numero, &size, &arreglo);
+
+            int i;
+            printf("EL SIZE ES: %d\n", size);
+            for (i = 0; i < size; i++)
+            {
+
+                printf("%d ", arreglo[i]);
+            }
+            printf("\n");
+            free(arreglo);
         }
-        printf("\n");
-        free(arreglo);
     }
 
     return 0;
 }
-
