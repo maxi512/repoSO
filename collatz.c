@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 /**
  * *Recibe un numero y devuelve la conjetura de collatz asociada a ese numero en un arreglo
@@ -13,7 +14,6 @@ void collatz(int numero, int *size, int **parreglo)
 
     resultado[i++] = numero;
     (*size)++;
-
 
     if (numero == 1)
     {
@@ -44,32 +44,39 @@ void collatz(int numero, int *size, int **parreglo)
             (*size)++;
         }
     }
-
 }
 
-int main(int argc, char ** args)
-{   
-
-    //!FALTAN HACER CHEQUEOS
+int main(int argc, char **args)
+{
 
     //*Convierte un string a entero
-    int numero = atoi(*(args+1));
+    int numero = atoi(*(args + 1));
 
-    int size = 0;
-
-    //Maximo 500 enteros
-    int *arreglo = (int *) malloc(500 * sizeof(int));
-    collatz(numero, &size, &arreglo);
-
-    int i;
-    printf("EL SIZE ES: %d\n", size);
-    for (i = 0; i < size; i++)
+    //atoi devuelve 0 si no pudo realizar la conversion.
+    if (numero == 0 || numero < 0)
+    {
+        printf("Por favor ingrese como parametro un numero entero positivo.\n");
+    }
+    else
     {
 
-        printf("%d ", arreglo[i]);
+        int size = 0;
+
+        //Maximo 500 enteros
+        int *arreglo = (int *)malloc(500 * sizeof(int));
+        collatz(numero, &size, &arreglo);
+
+        int i;
+        printf("EL SIZE ES: %d\n", size);
+        for (i = 0; i < size; i++)
+        {
+
+            printf("%d ", arreglo[i]);
+        }
+        printf("\n");
+        free(arreglo);
     }
-    printf("\n");
-    free(arreglo);
 
     return 0;
 }
+
