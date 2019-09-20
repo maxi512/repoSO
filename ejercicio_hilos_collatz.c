@@ -21,7 +21,6 @@ void * collatz(void * arg)
     int numero = param->numero;
     int * size = param->size;
     int ** parreglo = param->parreglo;
-    printf("Recibi los parametros!\n");
 
     int i = 0;
 
