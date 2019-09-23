@@ -5,7 +5,7 @@
 struct parametros
 {
     int numero;
-    int * size;
+    int *size;
     int **parreglo;
 };
 
@@ -13,14 +13,14 @@ struct parametros
  * *Recibe un numero y devuelve la conjetura de collatz asociada a ese numero en un arreglo
  * 
  */
-void * collatz(void * arg)
+void *collatz(void *arg)
 {
 
-    struct parametros * param = (struct parametros *)arg;
+    struct parametros *param = (struct parametros *)arg;
 
     int numero = param->numero;
-    int * size = param->size;
-    int ** parreglo = param->parreglo;
+    int *size = param->size;
+    int **parreglo = param->parreglo;
 
     int i = 0;
 
@@ -29,35 +29,25 @@ void * collatz(void * arg)
     resultado[i++] = numero;
     (*size)++;
 
-    if (numero == 1)
+    do
     {
-        resultado[i++] = 4;
-        resultado[i++] = 2;
-        resultado[i++] = 1;
-        (*size) = 4;
-    }
-
-    else
-    {
-        while (numero != 1)
+        if (numero % 2 == 0)
         {
-            if (numero % 2 == 0)
-            {
-                //*Es par
-                numero /= 2;
-            }
-            else
-            {
-                //* Es Impar
-                numero = 3 * numero + 1; 
-            }
-            resultado[i++] = numero;
-            (*size)++;
+            //*Es par
+            numero /= 2;
         }
-    }
+        else
+        {
+            //* Es Impar
+            numero = 3 * numero + 1;
+        }
+
+        resultado[i++] = numero;
+        (*size)++;
+
+    } while (numero != 1);
 
     pthread_exit((void *)resultado);
-
 }
 
 int main(int argc, char **args)
@@ -70,6 +60,7 @@ int main(int argc, char **args)
     {
         //*Convierte un string a entero
         int numero = atoi(*(args + 1));
+
         //! atoi devuelve 0 si no pudo realizar la conversion.
         if (numero <= 0)
         {
@@ -85,25 +76,27 @@ int main(int argc, char **args)
             int *arreglo = (int *)malloc(500 * sizeof(int));
 
             //creo struct para parametrizar
-            struct parametros * param = malloc(sizeof(struct parametros));
+            struct parametros *param = malloc(sizeof(struct parametros));
 
+            //inicializo componentes de struct
             param->numero = numero;
             param->parreglo = &arreglo;
             param->size = &size;
 
-            pthread_create(&hilo_hijo, NULL, &collatz,(void *)param);
+            pthread_create(&hilo_hijo, NULL, &collatz, (void *)param);
 
-            pthread_join(hilo_hijo,(void *)&arreglo);
+            pthread_join(hilo_hijo, NULL);
+
+            //pthread_join(hilo_hijo,(void *)&arreglo);
 
             int i;
-
-            printf("EL SIZE ES: %d\n", size);
             for (i = 0; i < size; i++)
             {
-
                 printf("%d ", arreglo[i]);
             }
+
             printf("\n");
+
             free(arreglo);
             free(param);
         }
