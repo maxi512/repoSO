@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
+
 void listarDir(char *path)
 {
     DIR *path_directorio;
@@ -22,23 +23,39 @@ void listarDir(char *path)
         }
         closedir(path_directorio);
     }
-   
 }
 
 void hacerDir(char *path)
 {
     printf("Se detecto comando hacerDir\n");
-    mkdir(path, 0777);
-    printf("Se creo carpeta %s\n", path);
+
+    int status = mkdir(path, 0777);
+
+    if (status = 0)
+    {
+        printf("Se creo carpeta %s\n", path);
+    }
+
+    else
+    {
+        printf("La carpeta %s ya existe\n", path);
+    }
 }
 
 void removerDir(char *path)
 {
 
     printf("Se detecto comando removerDir\n");
-    rmdir(path);
 
-    printf("Se removio carpeta %s\n", path);
+    int status = rmdir(path);
+
+    if (status == 0)
+    {
+        printf("Se removio la carpeta %s\n", path);
+    }
+    else{
+        printf("Error, la carpeta no existe");
+    }
 }
 
 int main(int argc, char **args)
