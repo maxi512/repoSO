@@ -1,0 +1,16 @@
+
+Esta es la ayuda para el Shell del Proyecto de SO 2019.
+
+Comandos Disponibles:
+
+    hacerDir [ruta]: Crea un directorio en la ruta especificada.
+
+    removerDir [ruta]: Elimina el directorio perteneciente a la ruta seleccionada. Debe estar vacio.
+
+    listarDir [ruta]: Lista el contenido de la ruta especificada.
+
+    mostrarArchivo [ruta]: Muestra el contenido del archivo especificado.
+
+    exit: Salir de Shell.
+
+    help: Muestra la ayuda de Shell. 
