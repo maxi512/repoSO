@@ -52,9 +52,10 @@ void *collatz(void *arg)
 
 int main(int argc, char **args)
 {
+    //Si hay 1 parametro -> es solo el nombre del archivo
     if (argc > 2 || argc == 1)
     {
-        printf("Por favor ingresar un parametro\n");
+        printf("Por favor ingresar un parametro, en lugar de %d\n", argc);
     }
     else
     {
