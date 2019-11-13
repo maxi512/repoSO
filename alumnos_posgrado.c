@@ -6,9 +6,16 @@
 
 sem_t semA,semB,semC,semD,semE;
 
+/*
+Cada una de estas funciones representa a un alumndo determinado.
+Los primeros 4 wait se utilizan para esperar que todos los alumnos esten disponibles para comenzar el nuevo curso.
+
+Luego de que cada alumno termina el curso, a su determinado tiempo, le avisa mediante los post a los otros alumnos que ya termino.
+*/
+
 void *alumnoA(void * arg){
     int tiempo= 3;
-    for(int i=1; i<4; i++){
+    for(int i=1; i<=10; i++){
         sem_wait(&semB);
         sem_wait(&semC);
         sem_wait(&semD);
@@ -25,7 +32,7 @@ void *alumnoA(void * arg){
 
 void *alumnoB(void * arg){
     int tiempo= 5;
-    for(int i=1; i<4; i++){
+    for(int i=1; i<=10; i++){
         sem_wait(&semA);
         sem_wait(&semC);
         sem_wait(&semD);
@@ -42,7 +49,7 @@ void *alumnoB(void * arg){
 
 void *alumnoC(void * arg){
     int tiempo= 2;
-    for(int i=1; i<4; i++){
+    for(int i=1; i<=10; i++){
         sem_wait(&semB);
         sem_wait(&semA);
         sem_wait(&semD);
@@ -59,7 +66,7 @@ void *alumnoC(void * arg){
 
 void *alumnoD(void * arg){
     int tiempo= 3;
-    for(int i=1; i<4; i++){
+    for(int i=1;i<=10; i++){
         sem_wait(&semB);
         sem_wait(&semC);
         sem_wait(&semA);
@@ -76,7 +83,7 @@ void *alumnoD(void * arg){
 
 void *alumnoE(void * arg){
     int tiempo= 4;
-    for(int i=1; i<4; i++){
+    for(int i=1; i<=10; i++){
       sem_wait(&semB);
       sem_wait(&semC);
       sem_wait(&semD);
@@ -92,22 +99,24 @@ void *alumnoE(void * arg){
 }
 
 int main(int argc, char const *argv[]) {
-
+    //Se crean los threads correspondientes a cada alumno.
     pthread_t thread_al1,thread_al2,thread_al3,thread_al4,thread_al5;
 
+    //Se inicializan los semaforos asociados a cada alumno.
     sem_init(&semA,0,4);
     sem_init(&semB,0,4);
     sem_init(&semC,0,4);
     sem_init(&semD,0,4);
     sem_init(&semE,0,4);
 
+    //Se inician los threads asociando a cada uno la funcion correspondiente.
     pthread_create(&thread_al1, NULL, &alumnoA, NULL);
     pthread_create(&thread_al3, NULL, &alumnoB, NULL);
     pthread_create(&thread_al2, NULL, &alumnoC, NULL);
     pthread_create(&thread_al4, NULL, &alumnoD, NULL);
     pthread_create(&thread_al5, NULL, &alumnoE, NULL);
 
-
+    //Espera a que todos los hilos terminen
     pthread_join(thread_al1, NULL);
     pthread_join(thread_al2, NULL);
     pthread_join(thread_al3, NULL);

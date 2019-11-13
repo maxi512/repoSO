@@ -18,6 +18,12 @@ sem_t esperando_ascensor[cant_pisos];
 sem_t esperando_bajar[cant_pisos];
 sem_t cant_gente_bajar[cant_pisos];
 
+/*
+Este metodo, representa el comportamiento de una persona. Inicialmente se ubica en un piso aleatorio, y se elige un piso destino
+distinto del que se encuentra.
+Cuando el ascensor llega al piso de la persona, esta se sube y avisa a que piso desea ir. Cuando se llega al piso destino,
+la persona se baja y espera un rato para volver nuevamente a pedir el ascensor.
+*/
 void *persona(void *arg)
 {
     int *id= (int*) arg;
@@ -55,6 +61,9 @@ void *persona(void *arg)
     }
 }
 
+/*
+Este metodo simula el movimiento del ascenso, haciendo que baje y suba durante 3 ciclos.
+*/
 void *ascensor(void *arg)
 {
     for (int i = 0; i < 3; i++)
@@ -78,6 +87,11 @@ void bajar()
     }
 }
 
+/*
+Este metodo es el encargado de simular el trabajo del ascensor en cada piso.
+Cuando se llega a un piso, se muestra un mensaje indicando en que piso se encuentra, y luego se bajan, si es que hay,
+las personas correspondientes, y se suben las que estaban esperando.
+*/
 void trabajoAscensor(int piso)
 {
     printf("Ascensor esta en el piso %d.\n", piso);
@@ -102,6 +116,7 @@ int main(int argc, char const *argv[])
     pthread_t personas[cant_personas];
     pthread_t t_ascensor;
 
+    //Se inicializan los semaforos
     for(int i=0; i<cant_pisos; i++) {
         sem_init(&cant_gente_esperando[i],0,0);
         sem_init(&cant_gente_bajar[i],0,0);
@@ -111,6 +126,7 @@ int main(int argc, char const *argv[])
 
     pthread_create(&t_ascensor,NULL,&ascensor,NULL);
 
+    //Se inician los threads del arreglo asociandole el comportamiento de una persona a cada uno.
     for(int i=0; i<cant_personas; i++)
     {
         int *p = (int*)malloc(sizeof(int));
@@ -118,11 +134,13 @@ int main(int argc, char const *argv[])
         pthread_create(&personas[i],NULL,&persona,(void*)p);
     }
 
+    //Se espera que todas las personas finalicen.
     for(int j=0; j<cant_personas; j++)
     {
         pthread_join(personas[j],NULL);
     }
 
+    //Se espera a que el hilo ascensor finalice.
     pthread_join(t_ascensor, NULL);
 
     return 0;
