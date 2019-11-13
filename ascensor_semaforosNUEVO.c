@@ -3,7 +3,10 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <semaphore.h>
+
+
 #define cant_pisos 5
+#difine cant_personas 10;
 
 pthread_mutex_t hay_gente[cant_pisos];
 pthread_mutex_t se_baja[cant_pisos];
@@ -24,6 +27,30 @@ void personasEligenPiso(int piso)
         printf("Una persona se dirige al piso %d\n",piso_destino);
 
         pthread_mutex_unlock(&se_baja[piso_destino]);
+    }
+}
+
+void *persona(void *arg)
+{
+    int *id= (int*) arg;
+    id_persona = *id;
+    int piso_actual = rand() % cant_pisos;
+    int piso_destino;
+
+    do
+    {
+        piso_destino = rand() % cant_pisos;
+    } while (piso_destino == piso);
+
+    while(1)
+    {
+        printf("Soy la persona %d, estoy esperando el ascensor en el piso %d\n",id_persona,piso_actual);
+
+        sem_wait(&sem_esperando[piso_actual]);
+
+        printf("Soy la persona %d, me subi al ascensor. Voy al piso %d\n",id_persona,piso_destino);
+        pthread_mutex_unlock(&se_baja[piso_destino]);
+
     }
 }
 
@@ -60,7 +87,7 @@ void bajar()
     for (int i = cant_pisos - 2; i >= 1; i--)
     {
         printf("Ascensor esta en el piso %d.\n", i);
-        
+
         sem_wait(&sem_protector);
         if (!(pthread_mutex_trylock(&hay_gente[i])))
         {
@@ -105,7 +132,7 @@ void *colocarPersonas(void *arg)
         printf("\nHay una nueva persona esperando en el piso %d\n\n", piso);
         sem_post(&sem_protector);
         sleep(4);
-        
+
     }
 }
 
