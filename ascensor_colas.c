@@ -10,9 +10,9 @@
 #define cant_personas 10
 
 void persona(int arg, int id_cola, int id_cola2);
-void ascensor();
-void subir();
-void bajar();
+void ascensor(int id_cola1,int id_cola);
+void subir(int id_cola1,int id_cola);
+void bajar(int id_cola1,int id_cola);
 void trabajoAscensor(int piso);
 
 struct msg1
@@ -27,18 +27,59 @@ struct msg2
     int cant_personas_bajan;
 } msg2;
 
+void ascensor(int id_cola1,int id_cola2)
+{
+      for(int i=0;i<3;i++){
+          subir(id_cola1,id_cola2);
+          bajar(id_cola1,id_cola2);
+      }
+}
+
+void subir(int id_cola1,int id_cola){
+    for(int piso=0; piso<cant_pisos; piso++){
+        trabajoAscensor(piso,id_cola1,id_cola2);
+    }
+}
+
+void bajar(int id_cola1,int id_cola){
+    for(int piso=cant_pisos-2; piso >= 1; piso--){
+        trabajoAscensor(piso,id_cola1,id_cola2);
+    }
+}
+
 void trabajoAscensor(int piso, int id_cola, int id_cola2)
 {
+    struct msg1 *m1;
     struct msg2 *m2;
     printf("Ascensor esta en el piso %d.\n", piso);
+
     int flag = msgrcv(id_cola2, (struct msgbuf *)&(*m2), sizeof(int),
                       piso + 1, IPC_NOWAIT);
     if(flag == 0){
+        struct msg2 *bajar = malloc(sizeof(struct msg2));
         while(m2->cant_personas_bajan != 0){
-            
+              bajar->id = (m2->id) + cant_pisos;
+              m2->cant_personas_bajan--;
+              msgsnd(id_cola2, (struct msgbuf *)&(*bajar),
+                     sizeof(int),
+                     IPC_NOWAIT);
         }
     }
-    
+
+    int flag1= msgrcv(id_cola1, (struct msgbuf *)&(*m1), sizeof(int),
+                      piso + 1, IPC_NOWAIT);
+    if(flag1 == 0){
+        struct msg1 *subir = malloc(sizeof(struct msg1));
+        while(m1->cant_personas_suben != 0 ){
+            subir->id = (m1->id) + cant_pisos;
+            m1->cant_personas_suben--;
+            msgsnd(id_cola1, (struct msgbuf *)&(*subir),
+                   sizeof(int),
+                   IPC_NOWAIT);
+        }
+    }
+
+    sleep(2);
 }
 
 void persona(int arg, int id_cola, int id_cola2)
@@ -83,7 +124,7 @@ void persona(int arg, int id_cola, int id_cola2)
             printf("Soy la persona %d, me subi al ascensor. Voy al piso %d\n", id, piso_destino);
         }
 
-        int flag1 = msgrcv(id_cola, (struct msgbuf *)&(*m2), sizeof(int), piso_destino + 1, IPC_NOWAIT);
+        int flag1 = msgrcv(id_cola2, (struct msgbuf *)&(*m2), sizeof(int), piso_destino + 1, IPC_NOWAIT);
         if (flag1 == 0)
         {
             (m2->cant_personas_bajan) = (m2->cant_personas_bajan) + 1;
@@ -95,7 +136,7 @@ void persona(int arg, int id_cola, int id_cola2)
             (m2->cant_personas_bajan) = 1;
         }
 
-        msgsnd(id_cola, (struct msgbuf *)&(*m2),
+        msgsnd(id_cola2, (struct msgbuf *)&(*m2),
                sizeof(int),
                IPC_NOWAIT);
 
@@ -116,16 +157,16 @@ void persona(int arg, int id_cola, int id_cola2)
 
 int main(int argc, char const *argv[])
 {
-    key_t clave = ftok("/bin/ls", 1);
+    key_t clave1 = ftok("/bin/ls", 1);
     key_t clave2 = ftok("/bin/ps", 2);
 
-    int id_cola = msgget(clave, 0600 | IPC_CREAT);
+    int id_cola1 = msgget(clave1, 0600 | IPC_CREAT);
     int id_cola2 = msgget(clave2, 0600 | IPC_CREAT);
 
-    msgctl(id_cola, IPC_RMID, 0);
+    msgctl(id_cola1, IPC_RMID, 0);
     msgctl(id_cola2, IPC_RMID, 0);
 
-    id_cola = msgget(clave, 0600 | IPC_CREAT);
+    id_cola1 = msgget(clave1, 0600 | IPC_CREAT);
     id_cola2 = msgget(clave2, 0600 | IPC_CREAT);
 
     pid_t pid;
@@ -136,25 +177,35 @@ int main(int argc, char const *argv[])
         return (0);
     }
 
-    if (id_cola == -1)
+    if (id_cola1 == -1)
     {
         printf("Error al obtener identificador para cola mensajes");
         return (0);
     }
 
-    pid = fork();
+    if (id_cola2 == -1)
+    {
+        printf("Error al obtener identificador para cola mensajes");
+        return (0);
+    }
+
+
+    for(int i=0; i<cant_personas; i++){
+        pid=fork();
+        if(pid == 0){
+            persona(i,id_cola1,id_cola2);
+            exit(0);
+        }
+    }
+
 
     if ((int)pid != 0)
     {
         //Proceso padre
         ascensor(id_cola, id_cola2);
-    }
-    else
-    {
-        gente(id_cola);
-    }
 
-    msgctl(id_cola, IPC_RMID, (struct msqid_ds *)NULL);
+
+    }
 
     return 0;
 }
